@@ -66,11 +66,11 @@ int main(void)
 //	TCNT1 = 0b00000001;
 	
 	GIMSK |= (1<<PCIE);                       // mask INT0 for new pins
-    MCUSR |= (1<<ISC01);                      // change falling logical level 
+	MCUSR |= (1<<ISC01);                      // change falling logical level 
 	PCMSK |= (1<<PCINT1) | (1<<PCINT4);       // new pins (1,4) for external interrupt
-    sei();
-	DDRB = 0b00000001;
-	PORTB = 0b00011010;
+	sei();
+	DDRB = 0b00000101;
+	PORTB = 0b00000000;
     while (1) 
     {
 
