@@ -14,63 +14,65 @@
 volatile int state = 0;
 volatile int pinA = 0;
 volatile int pinB = 0;
-
+volatile int pinA_last = 0;
+volatile int pinB_last = 0;
 
 ISR(PCINT0_vect)                              // function of interrupt on PINs 1 and 4
 {
-	pinA = PINB & 0b00000010;
-	pinB = PINB & 0b00010000;
-	
-	cli();
-	
-	if ((state == 0 && !pinA && pinB) || (state == 2 && pinA && !pinB))
+    pinA = PINB & 0b00000010;
+    pinB = PINB & 0b00010000;
+    cli();
+    if (!pinA_last && !pinB_last)
+    {
+	if (!pinA && pinB)
 	{
-		state += 1;
+	    state = 1;
 	}
-	
-	if ((state == -1 && !pinA && !pinB) || (state == -3 && pinA && pinB))
+	if (pinA && !pinB)
 	{
-		state -= 1;
+    	    state = -1;
 	}
-
-	if ((state == 1 && !pinA && !pinB) || (state == 3 && pinA && pinB))
+    }
+    if (pinA_last && pinB_last)
+    {
+	if (!pinA && pinB)
 	{
-		state += 1;
+	    state = -1;
 	}
-	if ((state == 0 && pinA && !pinB) || (state == -2 && !pinA && pinB))
+	if (pinA && !pinB)
 	{
-		state -= 1;
+	    state = 1;
 	}
-
-	if (state == 4)
-	{
-		PORTB |= (1<<0);
-		_delay_ms(10);
-		PORTB &= ~(1<<0);
-	}
-	if (state == -4)
-	{
-		PORTB |= (1<<2);
-		_delay_ms(10);
-		PORTB &= ~(1<<2);
-	}
-	sei();
-	
-	if (pinA && pinB && state != 0) state = 0;
-
+    }
+    if (state == 1)
+    {
+	PORTB |= (1<<0);
+	_delay_ms(10);
+	PORTB &= ~(1<<0);
+	state = 0;
+    }
+    if (state == -1)
+    {
+	PORTB |= (1<<2);
+	_delay_ms(10);
+	PORTB &= ~(1<<2);
+	state = 0;
+    }
+    pinA_last = pinA;
+    pinB_last = pinB;
+    sei();	
 }
 
 int main(void)
 { 
-//	TCCR1 = 0b00001011;
-//	TCNT1 = 0b00000001;
-	
-	GIMSK |= (1<<PCIE);                       // mask INT0 for new pins
-	MCUSR |= (1<<ISC01);                      // change falling logical level 
-	PCMSK |= (1<<PCINT1) | (1<<PCINT4);       // new pins (1,4) for external interrupt
-	sei();
-	DDRB = 0b00000101;
-	PORTB = 0b00000000;
+    GIMSK |= (1<<PCIE);                       // mask INT0 for new pins
+    MCUSR |= (1<<ISC01);                      // change falling logical level 
+    PCMSK |= (1<<PCINT1) | (1<<PCINT4);       // new pins (1,4) for external interrupt
+    sei();
+    DDRB = 0b00000101;
+    PORTB = 0b00000000;
+    pinA_last = PINB & 0b00000010;
+    pinB_last = PINB & 0b00010000;
     while (1) 
     {
 
