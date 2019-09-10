@@ -6,6 +6,7 @@ Added a few new actions:
 - one click switch button
 - double click switch button
 - long press switch button
-- turn with pressed button
+- turn with pressed button.
+
 Added comments.
 Added connect of button at PNG schema file.
