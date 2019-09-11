@@ -104,13 +104,13 @@ int main(void)
 	TCCR1 = 0b00001011;                       // setting for timer1
 	TCNT1 = 0b00000001;                       // reset timer 1
 	GIMSK |= (1<<PCIE);                       // mask INT0 for new pins
-        MCUSR |= (1<<ISC01);                      // change falling logical level 
+  	MCUSR |= (1<<ISC01);                      // change falling logical level 
 	PCMSK |= (1<<PCINT1) | (1<<PCINT4);       // new pins (1,4) for external interrupts
-        sei();                                    // turn on interrupts
+   	sei();                                    // turn on interrupts
 	DDRB = 0b00000101;                        // setup input and output pins
 	PORTB = 0b00001000;                       // setup pull-up 
 	pinA_last = PINB & 0b00000010;            // read first value pinA
-        pinB_last = PINB & 0b00010000;            // read first value pinB
+  	pinB_last = PINB & 0b00010000;            // read first value pinB
     while (1) 
     {
 		pinS = PINB & 0b00001000;             // read pinS (SW) value 
@@ -121,7 +121,7 @@ int main(void)
 			if (!turned)                      // check turned actions
 			{
 				if (TCNT1 == 255) {timer1 ++; TCNT1 = 0;}   // start timer1 for long press action
-				if (timer1 > 100)                           // stop timer, activate LED's blinking action
+				if (timer1 > 40)                            // stop timer, activate LED's blinking action
 				{
 					PORTB |= (1<<0);                        
 					PORTB |= (1<<2);
@@ -140,6 +140,8 @@ int main(void)
 		{
 			if (turned || longPressed)         // check turn and long press flags
 			{
+				timer2 = 0;                    // reset timer2
+				timer1 = 0;                    // reset timer1
 				longPressed = 0;               // reset long press flag
 				turned = 0;                    // reset turn flag
 				pressed = 0;                   // reset press flag
@@ -180,5 +182,5 @@ int main(void)
 				}
 			}
 		}
-   	 }
+         }
 }
